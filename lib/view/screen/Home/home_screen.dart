@@ -1,25 +1,25 @@
 // ignore_for_file: must_be_immutable
+
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-
-import 'package:hive_flutter/adapters.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
-import 'package:rashin_stackvase/core/model/transaction_model.dart';
-import 'package:rashin_stackvase/core/provider/db_controller.dart';
+import 'package:rashin_stackvase/core/provider/home_screen_provider.dart';
+import 'package:rashin_stackvase/core/services/home_services.dart';
 import 'package:rashin_stackvase/view/screen/All%20Transaction/all_transaction.dart';
 import 'package:rashin_stackvase/view/shared/widget/bottom_sheet.dart';
 
 import '../../shared/widget/flip_card_widget.dart';
 
 class HomeScreen extends StatelessWidget {
-  HomeScreen({super.key});
-  double totalRupees = 0.0;
+  const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final transactionProvider = Provider.of<TransactionController>(context);
+    final homeProvider = Provider.of<HomeScreenProvider>(context);
+    homeProvider.getData();
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -50,15 +50,11 @@ class HomeScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  ValueListenableBuilder(
-                    valueListenable: Hive.box<TransactionModel>('transactionDb')
-                        .listenable(),
-                    builder: (context, value, child) => const Text(
-                      "Recent Transactions",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  const Text(
+                    "Recent Transactions",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   ElevatedButton(
@@ -73,80 +69,72 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
               Expanded(
-                child: ValueListenableBuilder(
-                  valueListenable:
-                      Hive.box<TransactionModel>('transactionDb').listenable(),
-                  builder: (context, value, child) {
-                    return Hive.box<TransactionModel>('transactionDb').isEmpty
-                        ? Lottie.asset(
-                            'assets/animations/animation_nodata.json',
-                            width: 250,
-                            height: 100,
-                          )
-                        : ListView.builder(
-                            itemCount: value.length,
-                            itemBuilder: (context, index) {
-                              final data = value.values.toList()[index];
-                              return Slidable(
-                                startActionPane: ActionPane(
-                                    motion: const ScrollMotion(),
-                                    children: [
-                                      SlidableAction(
-                                        onPressed: (value) {
-                                          transactionProvider
-                                              .deletTransaction(index);
-                                        },
-                                        backgroundColor:
-                                            const Color(0xFFFE4A49),
-                                        foregroundColor: Colors.white,
-                                        icon: Icons.delete,
-                                        label: 'Delete',
-                                      ),
-                                    ]),
-                                child: ListTile(
-                                  title: Text(
-                                    data.description!,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
+                  child: homeProvider.getDataList.isEmpty
+                      ? Lottie.asset(
+                          'assets/animations/animation_nodata.json',
+                          width: 250,
+                          height: 100,
+                        )
+                      : ListView.builder(
+                          itemCount: homeProvider.getDataList.length,
+                          itemBuilder: (context, index) {
+                            final data = homeProvider.getDataList[index];
+                            return Slidable(
+                              startActionPane: ActionPane(
+                                  motion: const ScrollMotion(),
+                                  children: [
+                                    SlidableAction(
+                                      onPressed: (value) async {
+                                        await HomeServices()
+                                            .deleteTransaction(data.id);
+                                      },
+                                      backgroundColor: const Color(0xFFFE4A49),
+                                      foregroundColor: Colors.white,
+                                      icon: Icons.delete,
+                                      label: 'Delete',
                                     ),
+                                  ]),
+                              child: ListTile(
+                                title: Text(
+                                  data.description!,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
                                   ),
-                                  subtitle: Text(
-                                    data.category!,
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15,
-                                        color: data.category == 'Income'
-                                            ? Colors.green
-                                            : Colors.red),
-                                  ),
-                                  trailing: Text(
-                                    '₹${data.rupees}',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15,
-                                        color: data.category == 'Income'
-                                            ? Colors.green
-                                            : Colors.red),
-                                  ),
-                                  leading: data.category == 'Income'
-                                      ? const Icon(
-                                          Icons.arrow_circle_up_rounded,
-                                          color: Colors.green,
-                                          size: 35,
-                                        )
-                                      : const Icon(
-                                          Icons.arrow_circle_down_rounded,
-                                          color: Colors.red,
-                                          size: 35,
-                                        ),
                                 ),
-                              );
-                            },
-                          );
-                  },
-                ),
-              )
+                                subtitle: Text(
+                                  data.category!,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                      color: data.category == 'Income'
+                                          ? Colors.green
+                                          : Colors.red),
+                                ),
+                                trailing: Text(
+                                  '₹${data.rupees}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                      color: data.category == 'Income'
+                                          ? Colors.green
+                                          : Colors.red),
+                                ),
+                                leading: data.category == 'Income'
+                                    ? const Icon(
+                                        Icons.arrow_circle_up_rounded,
+                                        color: Colors.green,
+                                        size: 35,
+                                      )
+                                    : const Icon(
+                                        Icons.arrow_circle_down_rounded,
+                                        color: Colors.red,
+                                        size: 35,
+                                      ),
+                              ),
+                            );
+                          },
+                        ))
             ],
           ),
         ),

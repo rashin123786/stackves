@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "358778482650",
+    "project_id": "stackves-c5a55",
+    "storage_bucket": "stackves-c5a55.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:358778482650:android:6623495fe8ed648d069ae3",
+        "android_client_info": {
+          "package_name": "com.example.rashin_stackvase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBEGyPYHrJVUjIs07TA0-oLE-o3KSxvZM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -8,7 +8,7 @@ class BottomNavWidget extends StatelessWidget {
   BottomNavWidget({super.key});
   final int _currentSelectedIndex = 0;
 
-  final pages = [HomeScreen(), SavingScreen()];
+  final pages = [const HomeScreen(), SavingScreen()];
 
   @override
   Widget build(BuildContext context) {

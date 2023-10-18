@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hive_flutter/adapters.dart';
-import 'package:provider/provider.dart';
 
-import 'package:rashin_stackvase/core/model/transaction_model.dart';
-import 'package:rashin_stackvase/core/provider/db_controller.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+import 'package:rashin_stackvase/core/provider/authentication_controller.dart';
+
 import 'package:rashin_stackvase/core/provider/home_screen_provider.dart';
+import 'package:rashin_stackvase/core/provider/saving_provider.dart';
 import 'package:rashin_stackvase/view/screen/splash%20Screen/splash_screen.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
   ));
-  await Hive.initFlutter();
-  if (!Hive.isAdapterRegistered(TransactionModelAdapter().typeId)) {
-    Hive.registerAdapter(TransactionModelAdapter());
-  }
-
-  await Hive.openBox<TransactionModel>('transactionDb');
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(const MyApp());
 }
@@ -33,7 +33,10 @@ class MyApp extends StatelessWidget {
           create: (context) => HomeScreenProvider(),
         ),
         ChangeNotifierProvider(
-          create: (context) => TransactionController(),
+          create: (context) => SavingController(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => AuthController(),
         )
       ],
       child: MaterialApp(

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:rashin_stackvase/core/model/transaction_model.dart';
-import 'package:rashin_stackvase/core/provider/db_controller.dart';
+import 'package:rashin_stackvase/core/model/transaction.dart';
+import 'package:rashin_stackvase/core/services/home_services.dart';
 import 'package:rashin_stackvase/view/shared/widget/text_field_widget.dart';
 import '../../../core/provider/home_screen_provider.dart';
 
@@ -24,7 +24,7 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
   @override
   Widget build(BuildContext context) {
     final dateProvider = Provider.of<HomeScreenProvider>(context);
-    final transactionProvider = Provider.of<TransactionController>(context);
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SingleChildScrollView(
@@ -124,16 +124,19 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
                   child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          TransactionModel transactionModel = TransactionModel(
+                          TransactionModels transactionModel =
+                              TransactionModels(
                             category: selectedOption,
                             date: formattedDate,
                             rupees: double.tryParse(rupeeController.text) ?? 0,
                             description: descriptionController.text,
                           );
-
-                          transactionProvider
-                              .addTransaction(transactionModel)
+                          HomeServices()
+                              .addTransaction(context, transactionModel)
                               .then((value) => Navigator.pop(context));
+                          // transactionProvider
+                          //     .addTransaction(transactionModel)
+                          //     .then((value) => Navigator.pop(context));
                         }
                       },
                       child: const Text('Submit')),
